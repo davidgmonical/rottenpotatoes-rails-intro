@@ -12,42 +12,48 @@ class MoviesController < ApplicationController
 
   def index
 
-    if (params[:ratings] == nil || params[:ratings].keys.empty?)
-
-      flash.keep
-      redirect_to movies_path(ratings: session[:ratings], sort: params[:sort] || session[:sort])
-
-    end
-
-    if (params[:sort] != nil || params[:ratings] != nil)
+    if (params[:sort] != nil)
 
       session[:sort] = params[:sort]
+
+    end
+    puts params[:ratings]
+    puts params[:ratings] != nil
+
+    if (params[:ratings] != nil && !params[:ratings].keys.empty?)
+      puts params[:ratings].keys
+      puts "IN"
       session[:ratings] = params[:ratings]
 
     end
 
+    if (params[:ratings] != nil && params[:ratings].keys.empty?)
 
+      flash.keep
+      redirect_to movies_path(ratings: session[:ratings], sort: session[:sort])
+
+    end
 
 
     @all_ratings = Movie.all_ratings
   
-    if (params[:ratings])
-      @checked_ratings = Hash[@all_ratings.map{|r| [r, params[:ratings].keys.include?(r)]}]
+    if (session[:ratings])
+      @checked_ratings = Hash[@all_ratings.map{|r| [r, session[:ratings].keys.include?(r)]}]
     else
       @checked_ratings = Hash[@all_ratings.map{|r| [r, @all_ratings.include?(r)]}]
     end
 
     @movies = Movie.all
 
-    if (params[:ratings])
+    if (session[:ratings])
 
-      @movies = Movie.with_ratings(params[:ratings].keys)
+      @movies = Movie.with_ratings(session[:ratings].keys)
 
     end
 
-    if (params[:sort] == "release_date")
+    if (session[:sort] == "release_date")
       @movies = @movies.all.sort_by{|movie| movie[:release_date]}
-    elsif (params[:sort] == "title")
+    elsif (session[:sort] == "title")
       @movies = @movies.all.sort_by{|movie| movie[:title]}
     else
       @movies = @movies.all
