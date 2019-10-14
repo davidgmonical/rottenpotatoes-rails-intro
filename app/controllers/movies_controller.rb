@@ -12,27 +12,15 @@ class MoviesController < ApplicationController
 
   def index
 
-    if (params[:sort] != nil)
+    if ((params[:ratings] == nil && session[:ratings] != nil) || (params[:sort] == nil && session[:sort] != nil))
 
-      session[:sort] = params[:sort]
+    	flash.keep
+    	redirect_to movies_path(ratings: params[:ratings] || session[:ratings], sort: params[:sort] || session[:sort])
 
-    end
-    puts params[:ratings]
-    puts params[:ratings] != nil
+   	end
 
-    if (params[:ratings] != nil && !params[:ratings].keys.empty?)
-      puts params[:ratings].keys
-      puts "IN"
-      session[:ratings] = params[:ratings]
-
-    end
-
-    if (params[:ratings] != nil && params[:ratings].keys.empty?)
-
-      flash.keep
-      redirect_to movies_path(ratings: session[:ratings], sort: session[:sort])
-
-    end
+   	session[:ratings] = params[:ratings] || session[:ratings]
+   	session[:sort] = params[:sort] || session[:sort]
 
 
     @all_ratings = Movie.all_ratings
